@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homework 09</title>
+<style>
+  :root { --ink:#18202a; --muted:#566270; --rule:#cbd5df; --accent:#315f8c; --pale:#eef4f9; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:#f4f6f8; font-family:Georgia, "Times New Roman", serif; line-height:1.35; }
+  main { max-width:9in; margin:28px auto; padding:0.58in 0.65in; background:white; box-shadow:0 2px 18px #0002; }
+  h1,h2,h3 { font-family:Arial, Helvetica, sans-serif; color:#173b5e; line-height:1.15; }
+  h1 { margin:0 0 4px; font-size:25pt; letter-spacing:-.4px; }
+  h2 { margin:28px 0 10px; padding-bottom:5px; border-bottom:2px solid var(--accent); font-size:16pt; }
+  h3 { margin:15px 0 5px; font-size:12.5pt; }
+  p { margin:7px 0; }
+  .subtitle { color:var(--muted); font-family:Arial, Helvetica, sans-serif; margin-bottom:22px; }
+  .method { background:var(--pale); border-left:4px solid var(--accent); padding:9px 12px; margin:10px 0 14px; }
+  table { border-collapse:collapse; width:100%; margin:9px 0 12px; font-family:Arial, Helvetica, sans-serif; font-size:9.1pt; }
+  th,td { border-bottom:1px solid var(--rule); padding:4px 6px; text-align:right; vertical-align:top; }
+  th { background:#e7eef5; color:#173b5e; font-weight:700; }
+  td:first-child, th:first-child { text-align:left; }
+  tbody tr:nth-child(even) { background:#f8fafc; }
+  section:not(.analysis-page):not(.skill-appendix) > table { font-size:8.3pt; margin:6px 0 8px; }
+  section:not(.analysis-page):not(.skill-appendix) > table th,
+  section:not(.analysis-page):not(.skill-appendix) > table td { padding:2px 5px; }
+  .best { background:#e7f4ea !important; font-weight:700; }
+  .chosen { outline:2px solid #4b789f; outline-offset:-2px; }
+  .note { color:var(--muted); font-size:9.4pt; }
+  .analysis-page { font-size:11pt; }
+  .analysis-page h2 { margin-top:0; font-size:15pt; }
+  .analysis-page h3 { margin-top:10px; }
+  .analysis-page table { font-size:8.8pt; margin:6px 0 8px; }
+  .analysis-page th,.analysis-page td { padding:3px 5px; }
+  .evidence-grid { display:grid; grid-template-columns:1.08fr .92fr; gap:14px; align-items:start; }
+  figure { margin:6px 0; padding:8px 10px 7px; border:1px solid var(--rule); background:#fbfcfd; }
+  figcaption { margin-top:6px; color:var(--muted); font:8.5pt Arial, Helvetica, sans-serif; }
+  .bar-row { display:grid; grid-template-columns:58px 1fr 42px; gap:6px; align-items:center; margin:5px 0; font:8.6pt Arial, Helvetica, sans-serif; }
+  .track { height:11px; background:#e2e8ee; border-radius:2px; overflow:hidden; }
+  .bar { height:100%; background:#7da1c3; }
+  .bar.selected { background:#2f6f47; }
+  pre { margin:8px 0 0; padding:13px 15px; background:#f5f7f9; border:1px solid var(--rule); white-space:pre-wrap; font:9.2pt/1.3 Menlo, Consolas, monospace; }
+  code { font-family:Menlo, Consolas, monospace; font-size:.92em; }
+  .skill-appendix { break-before:page; page-break-before:always; }
+  @media print {
+    @page { size:letter; margin:.55in; }
+    body { background:white; }
+    main { max-width:none; margin:0; padding:0; box-shadow:none; }
+    h2 { break-after:avoid; }
+    table, figure, .method { break-inside:avoid; }
+    .analysis-page { break-before:page; page-break-before:always; break-after:page; page-break-after:always; }
+    .skill-appendix { break-before:page; page-break-before:always; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Homework 09</h1>
+    <div class="subtitle">STAT 432 &middot; Support vector machines</div>
+  </header>
+
+  <section>
+    <h2>Question 1: Choosing an SVM kernel</h2>
+    <p>The response is coronary heart disease status (<code>chd</code>) for 462 observations. I used the nine requested predictors and coded <code>famhist</code> as 1 for Absent and 2 for Present.</p>
+
+    <div class="method"><strong>Evaluation design.</strong> Using seed 43209, I shuffled observations separately within each response class and assigned them cyclically to five folds. Each fold contained 92 or 93 observations and exactly 32 CHD cases. Every candidate used these same folds. Within each split, I estimated each predictor's mean and standard deviation from the four fitting folds only, then applied those values to both fitting and validation observations. The primary metric was the unweighted misclassification rate, averaged over the five folds.</div>
+
+    <p>I compared exactly 20 settings. Polynomial kernels used <span aria-label="kernel formula">K(u,v) = (&gamma;u<sup>T</sup>v + 1)<sup>d</sup></span>, with <code>coef0 = 1</code> and <code>&gamma; = 1/9</code> fixed; only degree and cost varied. For the radial kernel, <code>&gamma;</code> and cost varied.</p>
+
+    <table aria-label="Cross-validation results for all 20 SVM candidates">
+      <thead><tr><th>Kernel</th><th>Degree</th><th>&gamma;</th><th>Cost C</th><th>Mean CV error</th></tr></thead>
+      <tbody>
+        <tr class="chosen"><td>Linear</td><td>&mdash;</td><td>&mdash;</td><td>0.1</td><td>0.2773</td></tr>
+        <tr><td>Linear</td><td>&mdash;</td><td>&mdash;</td><td>1</td><td>0.2924</td></tr>
+        <tr><td>Linear</td><td>&mdash;</td><td>&mdash;</td><td>10</td><td>0.2924</td></tr>
+        <tr><td>Polynomial</td><td>2</td><td>0.1111</td><td>0.1</td><td>0.2836</td></tr>
+        <tr><td>Polynomial</td><td>2</td><td>0.1111</td><td>1</td><td>0.2923</td></tr>
+        <tr><td>Polynomial</td><td>2</td><td>0.1111</td><td>10</td><td>0.3032</td></tr>
+        <tr><td>Polynomial</td><td>3</td><td>0.1111</td><td>0.1</td><td>0.2772</td></tr>
+        <tr><td>Polynomial</td><td>3</td><td>0.1111</td><td>1</td><td>0.3140</td></tr>
+        <tr><td>Polynomial</td><td>3</td><td>0.1111</td><td>10</td><td>0.3335</td></tr>
+        <tr><td>Polynomial</td><td>4</td><td>0.1111</td><td>0.1</td><td>0.2924</td></tr>
+        <tr><td>Polynomial</td><td>4</td><td>0.1111</td><td>1</td><td>0.3334</td></tr>
+        <tr><td>Polynomial</td><td>4</td><td>0.1111</td><td>10</td><td>0.3487</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.01</td><td>0.1</td><td>0.3463</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.10</td><td>0.1</td><td>0.3442</td></tr>
+        <tr class="best"><td>Radial</td><td>&mdash;</td><td>0.01</td><td>1</td><td>0.2707</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.10</td><td>1</td><td>0.2923</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.01</td><td>10</td><td>0.2728</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.10</td><td>10</td><td>0.3184</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.01</td><td>100</td><td>0.2902</td></tr>
+        <tr><td>Radial</td><td>&mdash;</td><td>0.10</td><td>100</td><td>0.3466</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Choice.</strong> The numerical minimum is radial with <code>C = 1</code> and <code>&gamma; = 0.01</code> (mean error 0.2707, fold-based SE 0.0199). I prefer the linear model with <code>C = 0.1</code>. Its error is only 0.0066 higher and is below the one-standard-error cutoff, 0.2707 + 0.0199 = 0.2906. Thus the observed nonlinear improvement is just three of 462 out-of-fold predictions, while the linear boundary is substantially easier to interpret and less flexible.</p>
+  </section>
+
+  <section class="analysis-page">
+    <h2>Question 2: One-page SVM analysis report</h2>
+
+    <h3>Suitability and safeguards</h3>
+    <p>This is a feasible binary SVM problem: 462 observations, nine predictors, and a 160/302 (34.6%/65.4%) class split. There are no missing values, duplicated rows, or predictors that directly encode <code>chd</code>. Forty-one rows have at least one predictor more than three standard deviations from its full-data mean, so soft margins and fold-specific scaling are useful; these observations were retained. No groups or time ordering were supplied. With no asymmetric error costs specified, I defined ordinary misclassification rate as the primary metric before tuning; sensitivity and specificity supplement it. I did not apply class weights because the imbalance is moderate and the target metric is unweighted error.</p>
+
+    <h3>Models and evaluation</h3>
+    <p>I considered a linear baseline, polynomial degrees 2&ndash;4 for progressively more curved boundaries, and a radial kernel for smooth local nonlinearity. I used the same reproducible, approximately stratified five folds and the 20-setting logarithmic grid reported in Question 1. Means and standard deviations were recomputed using only each split's fitting observations, preventing preprocessing leakage.</p>
+
+    <div class="evidence-grid">
+      <div>
+        <table aria-label="Best cross-validation result from each kernel family">
+          <thead><tr><th>Family</th><th>C</th><th>&gamma;</th><th>Error (SE)</th></tr></thead>
+          <tbody>
+            <tr class="chosen"><td>Linear</td><td>0.1</td><td>&mdash;</td><td>0.277 (0.027)</td></tr>
+            <tr><td>Polynomial d=2</td><td>0.1</td><td>0.111</td><td>0.284 (0.015)</td></tr>
+            <tr><td>Polynomial d=3</td><td>0.1</td><td>0.111</td><td>0.277 (0.017)</td></tr>
+            <tr><td>Polynomial d=4</td><td>0.1</td><td>0.111</td><td>0.292 (0.021)</td></tr>
+            <tr class="best"><td>Radial</td><td>1</td><td>0.010</td><td>0.271 (0.020)</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Table 1. Minimum five-fold mean error in each family. Outline = selected; green = numerical minimum.</p>
+      </div>
+      <figure aria-label="Bar chart comparing minimum cross-validation errors by kernel family">
+        <div class="bar-row"><span>Linear</span><div class="track"><div class="bar selected" style="width:77.3%"></div></div><span>.277</span></div>
+        <div class="bar-row"><span>Poly 2</span><div class="track"><div class="bar" style="width:83.6%"></div></div><span>.284</span></div>
+        <div class="bar-row"><span>Poly 3</span><div class="track"><div class="bar" style="width:77.2%"></div></div><span>.277</span></div>
+        <div class="bar-row"><span>Poly 4</span><div class="track"><div class="bar" style="width:92.4%"></div></div><span>.292</span></div>
+        <div class="bar-row"><span>Radial</span><div class="track"><div class="bar" style="width:70.7%"></div></div><span>.271</span></div>
+        <figcaption>Figure 1. Lowest mean CV error by family; bar length shows excess above 0.20. Differences are small relative to fold-to-fold uncertainty.</figcaption>
+      </figure>
+    </div>
+
+    <h3>Final model and interpretation</h3>
+    <p>The radial minimum improves on linear <code>C = 0.1</code> by only 0.0066, and the linear result lies within one SE of the minimum. I therefore select the simpler linear SVM. Its pooled out-of-fold confusion counts are TN=257, FP=45, FN=83, TP=77: error 0.277 (accuracy 0.723), sensitivity 0.481, and specificity 0.851. The final full-data fit has 283 support vectors, indicating substantial class overlap. On the standardized scale, the largest positive boundary coefficients are family history (0.444), age (0.380), tobacco (0.341), type-A score (0.312), and LDL (0.287); obesity is negative (-0.241). These are conditional directions of the fitted boundary, not causal effects. Selection and performance use the same CV run, so 0.277 should be treated as selection evidence rather than an unbiased final-test estimate.</p>
+  </section>
+
+  <section class="skill-appendix">
+    <h2>Appendix: Complete <code>SKILL.md</code></h2>
+    <pre>---
+name: svm-fit
+description: Fit and evaluate SVM models. Load only when the user wants.
+---
+SVM analysis
+
+Assess suitability
+- check the prediction target, task type, sample size, and predictor types.
+- Check missingness, outliers, and target leakage.
+- check whether sample size and computational cost make SVM fitting practical.
+- check suitability; if unsuitable, recommend an alternative and stop.
+- prevent leakage
+
+
+- consider a linear kernel as a simple baseline  for nonlinear patterns.
+- consider polynomial kernels when plausible.
+- for regression,  consider class weights for imbalanced classification.
+- Use reproducible cross-validation with logarithmic grids or randomized searches.
+
+- Define a primary metric appropriate to the task and error costs before tuning.
+- Use folds for classification; respect groups or time order when applicable.
+- Report sample size, evaluation design, selected kernel, tuning values, and key numerical scores.
+- Limit the entire report, including figure and table, to one printed page at 11-point font; verify the rendered page count.</pre>
+  </section>
+</main>
+</body>
+</html>
